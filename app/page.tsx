@@ -1,4 +1,13 @@
 import Image from "next/image";
+import { useReducer, useState } from "react";
+import { transactionsReducer, initialState } from "@/lib/reducer";
+import { Transaction } from "@/types";
+import { TransactionForm } from "@/components/TransactionForm";
+import { TransactionList } from "@/components/TransactionList";
+import { Chart } from "@/components/Chart";
+import { Button } from "@/components/UI/Button";
+import { Label } from "@/components/UI/Label";
+import { Input } from "@/components/UI/Input";
 
 export default function Home() {
   return (
