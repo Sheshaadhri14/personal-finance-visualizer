@@ -1,19 +1,18 @@
 "use client";
 import Image from "next/image";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useEffect } from "react";
 import { transactionsReducer, initialState } from "@/lib/reducer";
 import { Transaction } from "@/types";
 import { TransactionForm } from "@/components/TransactionForm";
 import { TransactionList } from "@/components/TransactionList";
 import { Chart } from "@/components/Chart";
 import { Button } from "@/components/UI/Button";
-import { Label } from "@/components/UI/Label";
-import { Input } from "@/components/UI/Input";
 import { CategoryPieChart } from "@/components/CategoryPieChart";
 import { budgetReducer, initialBudgets } from "@/lib/budgetReducer";
-import {BudgetForm}  from "@/components/BudgetForm";
+import { BudgetForm } from "@/components/BudgetForm";
 import { BudgetBarChart } from "@/components/BudgetBarChart";
 import { Budget } from "@/types/budget";
+import { SpendingInsights } from "@/components/SpendingInsights";
 
 function getMostSpentCategory(transactions: Transaction[]): string {
   const map = new Map<string, number>();
@@ -33,6 +32,12 @@ export default function Home() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [budgetFormOpen, setBudgetFormOpen] = useState(false);
+  const [lastDescription, setLastDescription] = useState("-");
+
+  useEffect(() => {
+    const last = transactions[transactions.length - 1]?.description || "-";
+    setLastDescription(last);
+  }, [transactions]);
 
   const openForm = (txn?: Transaction) => {
     setEditing(txn ?? null);
@@ -54,66 +59,86 @@ export default function Home() {
   };
 
   return (
-    <main className="w-full min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 xl:px-32 2xl:px-40 mx-auto space-y-8">
+    <main className="w-full min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 xl:px-32 2xl:px-40 mx-auto space-y-10 py-10 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Personal Finance Visualizer</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-4xl font-bold">Personal Finance Visualizer</h1>
+          <p className="text-base text-gray-700 dark:text-gray-300 mt-2">
             Track your expenses and visualize your spending habits.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => openForm()}>Add Transaction</Button>
-          <Button variant="outline" onClick={() => setBudgetFormOpen(true)}>Set Budget</Button>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => openForm()}
+            className="hover:bg-gray-900 hover:text-white dark:hover:bg-gray-100 dark:hover:text-black transition-colors"
+          >
+            Add Transaction
+          </Button>
+          <Button
+            variant="outline"
+            className="hover:bg-gray-800 hover:border-gray-600 dark:hover:bg-gray-100 dark:hover:border-gray-300 hover:text-white dark:hover:text-black"
+            onClick={() => setBudgetFormOpen(true)}
+          >
+            Set Budget
+          </Button>
         </div>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
-          <h3 className="text-sm text-gray-500">Total Expenses</h3>
-          <p className="text-xl font-semibold text-gray-900 dark:text-white">
-            ₹{transactions.reduce((sum, t) => sum + Number(t.amount), 0)}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
-          <h3 className="text-sm text-gray-500">Top Category</h3>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white">
-            {getMostSpentCategory(transactions)}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
-          <h3 className="text-sm text-gray-500">Last Transaction</h3>
-          <p className="text-sm text-gray-900 dark:text-white">
-            {transactions[transactions.length - 1]?.description || "-"}
-          </p>
-        </div>
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {[{
+          title: "Total Expenses",
+          value: `₹${transactions.reduce((sum, t) => sum + Number(t.amount), 0)}`
+        }, {
+          title: "Top Category",
+          value: getMostSpentCategory(transactions)
+        }, {
+          title: "Last Transaction",
+          value: lastDescription
+        }].map((card, i) => (
+          <div
+            key={i}
+            className="bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+          >
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{card.title}</h3>
+            <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">{card.value}</p>
+          </div>
+        ))}
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-        <div className="w-full">
-          <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Monthly Expenses</h2>
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Monthly Expenses</h2>
           <Chart transactions={transactions} />
         </div>
-        <div className="w-full">
-          <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Category Breakdown</h2>
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Category Breakdown</h2>
           <CategoryPieChart transactions={transactions} />
         </div>
       </section>
 
-      <section className="w-full">
-        <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Budget vs Actual</h2>
+      <section>
+        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Budget vs Actual</h2>
         <BudgetBarChart budgets={budgets} transactions={transactions} />
       </section>
 
-      <section className="w-full">
-        <TransactionList
-          transactions={transactions}
-          onEdit={openForm}
-          onDelete={deleteTxn}
-        />
+      <section>
+        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Spending Insights</h2>
+        <SpendingInsights budgets={budgets} transactions={transactions} />
       </section>
+
+      <section className="w-full">
+            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Transactions</h2>
+
+  <div className="bg-white dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+    <TransactionList
+      transactions={transactions}
+      onEdit={openForm}
+      onDelete={deleteTxn}
+    />
+  </div>
+</section>
+
 
       {formOpen && (
         <TransactionForm

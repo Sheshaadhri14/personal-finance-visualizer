@@ -122,8 +122,21 @@ export const TransactionForm: React.FC<Props> = ({ transaction, onSave, onClose 
         </div>
 
         <DialogFooter className="mt-6 flex justify-end space-x-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Save</Button>
+<Button
+  variant="outline"
+  onClick={onClose}
+  className="transition-colors hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
+>
+  Cancel
+</Button>
+
+<Button
+  onClick={handleSubmit}
+  className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
+>
+  Save
+</Button>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
