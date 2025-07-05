@@ -13,9 +13,14 @@ import { CategoryPieChart } from "@/components/CategoryPieChart";
 
 function getMostSpentCategory(transactions: Transaction[]): string {
   const map = new Map<string, number>();
+
   transactions.forEach((t) => {
-    map.set(t.category, (map.get(t.category) || 0) + Number(t.amount));
+    const category = t.category?.trim();
+    if (category) {
+      map.set(category, (map.get(category) || 0) + t.amount);
+    }
   });
+
   const sorted = Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   return sorted[0]?.[0] || "-";
 }

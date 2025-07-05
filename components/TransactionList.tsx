@@ -39,7 +39,7 @@ export const TransactionList: React.FC<Props> = ({ transactions, onEdit, onDelet
                     {format(new Date(t.date), "MMM d, yyyy")}
                   </div>
                 </TableCell>
-                <TableCell className="text-right font-mono">${t.amount.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono">₹{t.amount.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => onEdit(t)}>

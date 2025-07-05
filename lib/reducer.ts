@@ -6,9 +6,22 @@ export type Action =
   | { type: "DELETE_TRANSACTION"; payload: { id: string } };
 
 export const initialState: Transaction[] = [
-  { id: "1", amount: 75.5, date: "2025-07-01T10:00:00Z", description: "Groceries" },
-  { id: "2", amount: 1200, date: "2025-07-01T12:00:00Z", description: "Rent" },
+  {
+    id: "1",
+    amount: 75.5,
+    date: "2025-07-01T10:00:00Z",
+    description: "Groceries",
+    category: "Food", // ✅ Add category
+  },
+  {
+    id: "2",
+    amount: 1200,
+    date: "2025-07-01T12:00:00Z",
+    description: "Rent",
+    category: "Rent", // ✅ Add category
+  },
 ];
+
 
 export const transactionsReducer = (state: Transaction[], action: Action): Transaction[] => {
   switch (action.type) {
