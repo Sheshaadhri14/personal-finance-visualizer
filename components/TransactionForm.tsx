@@ -26,6 +26,8 @@ export const TransactionForm: React.FC<Props> = ({ transaction, onSave, onClose 
     transaction ? format(new Date(transaction.date), "yyyy-MM-dd") : ""
   );
   const [description, setDescription] = useState(transaction?.description || "");
+  const [category, setCategory] = useState(transaction?.category || ""); // New state for category
+  // Assuming category is part of Transaction type
   const [errors, setErrors] = useState<{ amount?: string; date?: string; description?: string }>(
     {}
   );
@@ -52,6 +54,7 @@ export const TransactionForm: React.FC<Props> = ({ transaction, onSave, onClose 
       amount: parseFloat(amount),
       date: new Date(date).toISOString(),
       description: description.trim(),
+      category: category.trim() || "Uncategorized", // Default category if not provided
     });
   };
 
@@ -96,6 +99,26 @@ export const TransactionForm: React.FC<Props> = ({ transaction, onSave, onClose 
             />
             {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
           </div>
+          <div>
+  <Label htmlFor="category">Category</Label>
+  <select
+    id="category"
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="w-full border rounded-md px-3 py-2 mt-1 bg-white dark:bg-gray-900 dark:text-white"
+    required
+  >
+    <option value="">Select a category</option>
+    <option value="Food">Food</option>
+    <option value="Rent">Rent</option>
+    <option value="Utilities">Utilities</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Travel">Travel</option>
+    <option value="Healthcare">Healthcare</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+
         </div>
 
         <DialogFooter className="mt-6 flex justify-end space-x-2">

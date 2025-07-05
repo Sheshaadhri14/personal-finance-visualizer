@@ -9,6 +9,16 @@ import { Chart } from "@/components/Chart";
 import { Button } from "@/components/UI/Button";
 import { Label } from "@/components/UI/Label";
 import { Input } from "@/components/UI/Input";
+import { CategoryPieChart } from "@/components/CategoryPieChart";
+
+function getMostSpentCategory(transactions: Transaction[]): string {
+  const map = new Map<string, number>();
+  transactions.forEach((t) => {
+    map.set(t.category, (map.get(t.category) || 0) + Number(t.amount));
+  });
+  const sorted = Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] || "-";
+}
 
 export default function Home() {
   const [transactions, dispatch] = useReducer(transactionsReducer, initialState);
@@ -30,7 +40,7 @@ export default function Home() {
   };
 
   return (
-<main className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40 max-w-[1280px] mx-auto space-y-8">
+    <main className="w-full min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 xl:px-32 2xl:px-40 mx-auto space-y-8">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Personal Finance Visualizer</h1>
@@ -41,11 +51,41 @@ export default function Home() {
         <Button onClick={() => openForm()}>Add Transaction</Button>
       </header>
 
-      <section>
-        <Chart transactions={transactions} />
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
+          <h3 className="text-sm text-gray-500">Total Expenses</h3>
+          <p className="text-xl font-semibold text-gray-900 dark:text-white">
+            ₹{transactions.reduce((sum, t) => sum + Number(t.amount), 0)}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
+          <h3 className="text-sm text-gray-500">Top Category</h3>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white">
+            {getMostSpentCategory(transactions)}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
+          <h3 className="text-sm text-gray-500">Last Transaction</h3>
+          <p className="text-sm text-gray-900 dark:text-white">
+            {transactions[transactions.length - 1]?.description || "-"}
+          </p>
+        </div>
       </section>
 
-      <section>
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <div className="w-full">
+          <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Monthly Expenses</h2>
+          <Chart transactions={transactions} />
+        </div>
+        <div className="w-full">
+          <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Category Breakdown</h2>
+          <CategoryPieChart transactions={transactions} />
+        </div>
+      </section>
+
+      <section className="w-full">
         <TransactionList
           transactions={transactions}
           onEdit={openForm}
@@ -63,5 +103,3 @@ export default function Home() {
     </main>
   );
 }
-
-
