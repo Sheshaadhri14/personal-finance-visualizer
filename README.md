@@ -44,5 +44,14 @@ Install dependencies:
 ```bash
 npm install
 npm run dev
-http://localhost:3000
 ```
+You can see it in url : http://localhost:3000
+
+⚡ Deploying on Vercel
+Deploy instantly using Vercel:
+
+```bash
+npm run build
+```
+Visit the Next.js deployment docs for more.
+
