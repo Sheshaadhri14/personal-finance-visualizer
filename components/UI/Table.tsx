@@ -1,3 +1,5 @@
+
+import * as React from "react";
 export const Table = ({ children }: { children: React.ReactNode }) => (
   <div className="overflow-x-auto border border-gray-200 rounded-lg">{children}</div>
 );
@@ -25,6 +27,9 @@ export const TableHead = ({
 export const TableCell = ({
   children,
   className = "",
-}:  React.TdHTMLAttributes<HTMLTableCellElement>) => (
-  <td className={`px-4 py-2 text-sm text-gray-700 ${className}`}>{children}</td>
+  ...props
+}: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+  <td className={`px-4 py-2 text-sm text-gray-700 ${className}`} {...props}>
+    {children}
+  </td>
 );
