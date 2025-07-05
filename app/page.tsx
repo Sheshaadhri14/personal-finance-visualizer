@@ -10,25 +10,29 @@ import { Button } from "@/components/UI/Button";
 import { Label } from "@/components/UI/Label";
 import { Input } from "@/components/UI/Input";
 import { CategoryPieChart } from "@/components/CategoryPieChart";
+import { budgetReducer, initialBudgets } from "@/lib/budgetReducer";
+import {BudgetForm}  from "@/components/BudgetForm";
+import { BudgetBarChart } from "@/components/BudgetBarChart";
+import { Budget } from "@/types/budget";
 
 function getMostSpentCategory(transactions: Transaction[]): string {
   const map = new Map<string, number>();
-
   transactions.forEach((t) => {
     const category = t.category?.trim();
     if (category) {
       map.set(category, (map.get(category) || 0) + t.amount);
     }
   });
-
   const sorted = Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   return sorted[0]?.[0] || "-";
 }
 
 export default function Home() {
   const [transactions, dispatch] = useReducer(transactionsReducer, initialState);
+  const [budgets, dispatchBudget] = useReducer(budgetReducer, initialBudgets);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  const [budgetFormOpen, setBudgetFormOpen] = useState(false);
 
   const openForm = (txn?: Transaction) => {
     setEditing(txn ?? null);
@@ -44,6 +48,11 @@ export default function Home() {
     dispatch({ type: "DELETE_TRANSACTION", payload: { id } });
   };
 
+  const saveBudget = (budget: Budget) => {
+    dispatchBudget({ type: "SET_BUDGET", payload: budget });
+    setBudgetFormOpen(false);
+  };
+
   return (
     <main className="w-full min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 xl:px-32 2xl:px-40 mx-auto space-y-8">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -53,7 +62,10 @@ export default function Home() {
             Track your expenses and visualize your spending habits.
           </p>
         </div>
-        <Button onClick={() => openForm()}>Add Transaction</Button>
+        <div className="flex gap-2">
+          <Button onClick={() => openForm()}>Add Transaction</Button>
+          <Button variant="outline" onClick={() => setBudgetFormOpen(true)}>Set Budget</Button>
+        </div>
       </header>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -91,6 +103,11 @@ export default function Home() {
       </section>
 
       <section className="w-full">
+        <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Budget vs Actual</h2>
+        <BudgetBarChart budgets={budgets} transactions={transactions} />
+      </section>
+
+      <section className="w-full">
         <TransactionList
           transactions={transactions}
           onEdit={openForm}
@@ -103,6 +120,13 @@ export default function Home() {
           transaction={editing}
           onSave={saveTxn}
           onClose={() => setFormOpen(false)}
+        />
+      )}
+
+      {budgetFormOpen && (
+        <BudgetForm
+          onSave={saveBudget}
+          onClose={() => setBudgetFormOpen(false)}
         />
       )}
     </main>
