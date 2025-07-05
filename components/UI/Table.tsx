@@ -25,9 +25,6 @@ export const TableHead = ({
 export const TableCell = ({
   children,
   className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
+}:  React.TdHTMLAttributes<HTMLTableCellElement>) => (
   <td className={`px-4 py-2 text-sm text-gray-700 ${className}`}>{children}</td>
 );
