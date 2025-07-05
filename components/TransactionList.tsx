@@ -1,7 +1,7 @@
 "use client";
 import { Transaction } from "@/types";
 import { format } from "date-fns";
-import { Button } from "@/components/UI/Button";
+import { Button } from "./UI/Button";
 import {
   Table,
   TableHeader,
@@ -9,7 +9,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/UI/Table";
+} from "./UI/Table";
 
 interface Props {
   transactions: Transaction[];
