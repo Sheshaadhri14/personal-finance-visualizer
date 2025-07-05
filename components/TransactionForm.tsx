@@ -1,0 +1,108 @@
+
+"use client";
+import { useState } from "react";
+import { format } from "date-fns";
+import { Transaction } from "@/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/UI/Dialog";
+import { Input } from "@/components/UI/Input";
+import { Label } from "@/components/UI/Label";
+import { Button } from "@/components/UI/Button";
+
+interface Props {
+  transaction?: Transaction | null;
+  onSave: (transaction: Transaction) => void;
+  onClose: () => void;
+}
+
+export const TransactionForm: React.FC<Props> = ({ transaction, onSave, onClose }) => {
+  const [amount, setAmount] = useState(transaction?.amount.toString() || "");
+  const [date, setDate] = useState(
+    transaction ? format(new Date(transaction.date), "yyyy-MM-dd") : ""
+  );
+  const [description, setDescription] = useState(transaction?.description || "");
+  const [errors, setErrors] = useState<{ amount?: string; date?: string; description?: string }>(
+    {}
+  );
+
+  const validate = () => {
+    const newErrors: typeof errors = {};
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+      newErrors.amount = "Amount must be a positive number.";
+    }
+    if (!date) {
+      newErrors.date = "Date is required.";
+    }
+    if (!description.trim()) {
+      newErrors.description = "Description is required.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    onSave({
+      id: transaction?.id || crypto.randomUUID(),
+      amount: parseFloat(amount),
+      date: new Date(date).toISOString(),
+      description: description.trim(),
+    });
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{transaction ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 mt-4">
+          <div>
+            <Label htmlFor="amount">Amount</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="e.g., 50.00"
+            />
+            {errors.amount && <p className="text-xs text-red-500">{errors.amount}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="date">Date</Label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            {errors.date && <p className="text-xs text-red-500">{errors.date}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g., Coffee"
+            />
+            {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
+          </div>
+        </div>
+
+        <DialogFooter className="mt-6 flex justify-end space-x-2">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
